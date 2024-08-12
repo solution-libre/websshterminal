@@ -40,5 +40,5 @@ func RunSshTerminal() {
 
 	e.GET("/ssh", handler.ShellWeb)
 
-	e.Logger.Fatal(e.Start(":5555"))
+	e.Logger.Fatal(e.Start("0.0.0.0:5555"))
 }

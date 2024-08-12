@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 	"unicode/utf8"
 
@@ -37,8 +38,19 @@ func (this *SSHClient) GenerateClient(ip, name, password string, port int) error
 		err          error
 	)
 
+	key, err := os.ReadFile("/root/.ssh/id_rsa")
+	if err != nil {
+		log.Fatalf("unable to read private key: %v", err)
+	}
+
+	// Create the Signer for this private key.
+	signer, err := ssh.ParsePrivateKey(key)
+	if err != nil {
+		log.Fatalf("unable to parse private key: %v", err)
+	}
+
 	auth = make([]ssh.AuthMethod, 0)
-	auth = append(auth, ssh.Password(password))
+	auth = append(auth, ssh.Password(password), ssh.PublicKeys(signer))
 	config = ssh.Config{
 		Ciphers: []string{"aes128-ctr", "aes192-ctr", "aes256-ctr", "aes128-gcm@openssh.com", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "aes192-cbc", "aes256-cbc"},
 	}
